@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -6,6 +7,8 @@ using Zenject;
 
 public sealed class RoomWaitingPresenter : MonoBehaviour
 {
+    [SerializeField] private TMP_Text _roomNameText;
+    [SerializeField] private TMP_Text _readyText;
     [SerializeField] private Button _readyButton;
     [SerializeField] private Button _startGameButton;
 
@@ -28,8 +31,9 @@ public sealed class RoomWaitingPresenter : MonoBehaviour
         _readyButton.onClick.AddListener(OnToggleReadyClicked);
         _startGameButton.onClick.AddListener(OnStartClicked);
 
-        if(_runnerService.Runner.IsSceneAuthority)
-            _startGameButton.gameObject.SetActive(false);
+        _startGameButton.gameObject.SetActive(_runnerService.Runner.IsSceneAuthority);
+
+        _roomNameText.text = _runnerService.Runner.SessionInfo.Name;
     }
 
     private void Update()
@@ -48,7 +52,7 @@ public sealed class RoomWaitingPresenter : MonoBehaviour
     public void OnToggleReadyClicked()
     {
         var state = _registry.Current;
-        if (state == null) 
+        if (state == null)
             return;
 
         _isReady = !_isReady;
@@ -63,7 +67,7 @@ public sealed class RoomWaitingPresenter : MonoBehaviour
     private async UniTaskVoid StartFlow()
     {
         var state = _registry.Current;
-        if (state == null) 
+        if (state == null)
             return;
 
         await _matchStart.TryStartMatchAsync(state.AreAllReady);
