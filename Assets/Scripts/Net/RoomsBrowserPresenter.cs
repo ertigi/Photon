@@ -1,13 +1,17 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Fusion;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 public sealed class RoomsBrowserPresenter : MonoBehaviour
 {
     [SerializeField] private RoomInfoView _roomViewPrefab;
     [SerializeField] private RectTransform _parent;
+    [SerializeField] private TMP_InputField _customRoomNameField;
+    [SerializeField] private Button _joinByCustomNameButton;
 
     private List<SessionInfo> _sessions = new();
     private List<RoomInfoView> _views = new();
@@ -22,17 +26,13 @@ public sealed class RoomsBrowserPresenter : MonoBehaviour
         _bus = bus;
         _roomService = roomService;
         _lobbyService = lobbyService;
+
+        _joinByCustomNameButton.onClick.AddListener(CustomJoin);
     }
 
     private void OnEnable()
     {
         _bus.Subscribe<SessionListUpdatedSignal>(OnSessionListUpdated);
-        
-        if(_lobbyService.CurrentSessions.Count > 0)
-        {
-            _sessions = new (_lobbyService.CurrentSessions);
-            CreateViews();
-        }
     }
 
     private void OnDisable()
@@ -44,6 +44,12 @@ public sealed class RoomsBrowserPresenter : MonoBehaviour
     {
         _sessions = new List<SessionInfo>(s.Sessions);
         CreateViews();
+    }
+
+    public void CustomJoin()
+    {
+        if(_customRoomNameField.text != string.Empty)
+            JoinByName( _customRoomNameField.text);
     }
 
     public void JoinByName(string sessionName)

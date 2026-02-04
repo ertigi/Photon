@@ -1649,6 +1649,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _roomViewPrefab: {fileID: 1727660558299774704, guid: bea39436c06814f4d95748186bd13be7, type: 3}
   _parent: {fileID: 1152954546}
+  _customRoomNameField: {fileID: 162904960}
+  _joinByCustomNameButton: {fileID: 1260648914}
 --- !u!1 &2111686327
 GameObject:
   m_ObjectHideFlags: 0
