@@ -12,9 +12,8 @@ public class ProjectInstaller : MonoInstaller
 
     [Header("Scenes (Build Settings indices)")]
     [SerializeField] private int _startScreenSceneIndex = 0;
-    [SerializeField] private int _roomsBrowserSceneIndex = 1;
-    [SerializeField] private int _roomWaitingSceneIndex = 2;
-    [SerializeField] private int _gameplaySceneIndex = 3;
+    [SerializeField] private int _roomWaitingSceneIndex = 1;
+    [SerializeField] private int _gameplaySceneIndex = 2;
 
     public override void InstallBindings()
     {

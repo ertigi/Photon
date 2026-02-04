@@ -7,6 +7,9 @@ public sealed class StartScreenPresenter : MonoBehaviour
 {
     [SerializeField] private Button _createRoomButton;
     [SerializeField] private Button _browseRoomButton;
+
+    [SerializeField] private Canvas _roomsBrowserCanvas;
+
     private LobbyService _lobby;
     private RoomService _rooms;
 
@@ -20,6 +23,8 @@ public sealed class StartScreenPresenter : MonoBehaviour
 
     private void Start()
     {
+        _roomsBrowserCanvas.enabled = false;
+
         _createRoomButton.onClick.AddListener(OnCreateRoomClicked);
         _browseRoomButton.onClick.AddListener(OnBrowseRoomsClicked);
     }
@@ -42,7 +47,9 @@ public sealed class StartScreenPresenter : MonoBehaviour
 
     private async UniTaskVoid BrowseRoomsFlow()
     {
-        await _lobby.EnterLobbyAsync();
-        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+        if(await _lobby.EnterLobbyAsync())
+        {
+            _roomsBrowserCanvas.enabled = true;
+        }
     }
 }

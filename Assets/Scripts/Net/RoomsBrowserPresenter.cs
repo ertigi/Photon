@@ -12,6 +12,9 @@ public sealed class RoomsBrowserPresenter : MonoBehaviour
     [SerializeField] private RectTransform _parent;
     [SerializeField] private TMP_InputField _customRoomNameField;
     [SerializeField] private Button _joinByCustomNameButton;
+    [SerializeField] private Button _closeBotton;
+
+    [SerializeField] private Canvas _roomsBrowserCanvas;
 
     private List<SessionInfo> _sessions = new();
     private List<RoomInfoView> _views = new();
@@ -28,14 +31,15 @@ public sealed class RoomsBrowserPresenter : MonoBehaviour
         _lobbyService = lobbyService;
 
         _joinByCustomNameButton.onClick.AddListener(CustomJoin);
+        _closeBotton.onClick.AddListener(CloseBrowserWindow);
     }
 
-    private void OnEnable()
+    private void Start()
     {
         _bus.Subscribe<SessionListUpdatedSignal>(OnSessionListUpdated);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         _bus.Unsubscribe<SessionListUpdatedSignal>(OnSessionListUpdated);
     }
@@ -55,6 +59,11 @@ public sealed class RoomsBrowserPresenter : MonoBehaviour
     public void JoinByName(string sessionName)
     {
         JoinFlow(sessionName).Forget();
+    }
+
+    private void CloseBrowserWindow()
+    {
+        _roomsBrowserCanvas.enabled = false;
     }
 
     private async UniTaskVoid JoinFlow(string sessionName)

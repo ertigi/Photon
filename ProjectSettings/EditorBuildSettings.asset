@@ -12,10 +12,10 @@ EditorBuildSettings:
     path: Assets/Scenes/2 RoomsBrowserPresenter.unity
     guid: 6d4cb5fe26b29c6499c334be0bf5295e
   - enabled: 1
-    path: Assets/Scenes/3 RoomWaitingPresenter.unity
+    path: Assets/Scenes/2 RoomWaitingPresenter.unity
     guid: 2e51c247710565d4fa2033a7d46883ad
   - enabled: 1
-    path: Assets/Scenes/4 Gameplay.unity
+    path: Assets/Scenes/3 Gameplay.unity
     guid: 518c319c5b7fc0c499b5f2797655211f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
