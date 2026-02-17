@@ -1,4 +1,0 @@
-public readonly struct LeftSessionSignal
-{
-    
-}
