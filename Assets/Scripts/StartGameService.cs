@@ -48,7 +48,7 @@ public class StartGameService
 
         var args = new StartGameArgs
         {
-            GameMode = GameMode.Host,
+            GameMode = GameMode.Client,
             SessionName = roomId,
             Scene = sceneInfo,
             SceneManager = _sceneManager
