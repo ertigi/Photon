@@ -6,6 +6,5 @@ public class MenuInstaller : MonoInstaller
     {
         Container.Bind<MenuViewModel>().AsSingle();
         Container.Bind<MenuController>().AsSingle();
-        Container.Bind<StartGameService>().AsSingle();
     }
 }

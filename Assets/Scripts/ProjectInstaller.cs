@@ -13,5 +13,11 @@ public class ProjectInstaller : MonoInstaller
     {
         Container.BindInstance(_runner).AsSingle();
         Container.BindInstance(_sceneManager).AsSingle();
+
+        Container.BindInterfacesAndSelfTo<KeyboardInputProvider>().AsSingle();
+        Container.Bind<PlayerSpawner>().AsSingle().WithArguments(_playerPrefab);
+        Container.BindInterfacesTo<FusionCallbacksHost>().AsSingle();
+        Container.Bind<StartGameService>().AsSingle();
+
     }
 }

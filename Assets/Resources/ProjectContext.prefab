@@ -78,7 +78,7 @@ MonoBehaviour:
   _runner: {fileID: 3515616155774231189}
   _sceneManager: {fileID: 8255340550115359481}
   _playerPrefab:
-    RawGuidValue: 00000000000000000000000000000000
+    RawGuidValue: 17e6e9c349b071f4696f9743dcd337ed
 --- !u!1 &7894760218948720784
 GameObject:
   m_ObjectHideFlags: 0
