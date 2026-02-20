@@ -27,7 +27,7 @@ public class FollowCamera : MonoBehaviour
 
         Vector3 desiredPos = _target.position + _offset;
         transform.position = Vector3.Lerp(transform.position, desiredPos, _followLerp * Time.deltaTime);
-        transform.LookAt(_target.position);
+        //transform.LookAt(_target.position);
     }
 
     private void OnDestroy() => _cd.Dispose();
