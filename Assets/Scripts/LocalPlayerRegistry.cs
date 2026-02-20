@@ -2,11 +2,13 @@ using UniRx;
 
 public class LocalPlayerRegistry
 {
+    public IReadOnlyReactiveProperty<ILocalPlayerCameraTarget> Local => _local;
     private readonly ReactiveProperty<ILocalPlayerCameraTarget> _local = new(null);
 
-    public IReadOnlyReactiveProperty<ILocalPlayerCameraTarget> Local => _local;
-
-    public void SetLocalPlayer(ILocalPlayerCameraTarget target) => _local.Value = target;
+    public void SetLocalPlayer(ILocalPlayerCameraTarget target)
+    {
+        _local.Value = target;
+    }
 
     public void ClearLocalPlayer(ILocalPlayerCameraTarget target)
     {

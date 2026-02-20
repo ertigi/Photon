@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 800cab9b13d6042499b0ca32add53b20, type: 3}
   m_Name: PrefabsConfig
   m_EditorClassIdentifier: 
-  <PlayerPrefab>k__BackingField:
+  <NetworkPlayerPrefab>k__BackingField:
     RawGuidValue: 17e6e9c349b071f4696f9743dcd337ed
+  <PlayerPrefabSource>k__BackingField: {fileID: 4293247417272612289, guid: 17e6e9c349b071f4696f9743dcd337ed, type: 3}

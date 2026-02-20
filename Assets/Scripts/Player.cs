@@ -7,14 +7,17 @@ public class Player : NetworkBehaviour, ILocalPlayerCameraTarget
     public class Factory : PlaceholderFactory<Player> { }
 
     [SerializeField] private float _speed = 5f;
-
     public Transform FollowTarget => transform;
     private LocalPlayerRegistry _registry;
 
-    public void Init(LocalPlayerRegistry registry)
+    [Inject]
+    public void Construct(LocalPlayerRegistry registry)
     {
         _registry = registry;
+    }
 
+    public override void Spawned()
+    {
         if (Object.HasInputAuthority)
             _registry.SetLocalPlayer(this);
     }

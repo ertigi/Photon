@@ -6,8 +6,8 @@ public class KeyboardInputProvider : IInputProvider
     {
         float x = Input.GetAxisRaw("Horizontal");
         float y = Input.GetAxisRaw("Vertical");
-        var v = new Vector2(x, y);
+        var direction = new Vector2(x, y);
 
-        return v.sqrMagnitude > 1f ? v.normalized : v;
+        return direction.normalized;
     }
 }

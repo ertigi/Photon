@@ -2,18 +2,21 @@ using Cysharp.Threading.Tasks;
 using Fusion;
 using UnityEngine;
 using UniRx;
+using Zenject;
 
 public class StartGameService
 {
     private readonly NetworkRunner _runner;
     private readonly NetworkSceneManagerDefault _sceneManager;
+    private readonly INetworkObjectProvider _networkObjectProvider;
 
     public NetworkRunner Runner => _runner;
 
-    public StartGameService(NetworkRunner runner, NetworkSceneManagerDefault sceneManager)
+    public StartGameService(NetworkRunner runner, NetworkSceneManagerDefault sceneManager, INetworkObjectProvider networkObjectProvider)
     {
         _runner = runner;
         _sceneManager = sceneManager;
+        _networkObjectProvider = networkObjectProvider;
     }
 
     public async UniTask StartAsHost(string roomId)
@@ -28,7 +31,8 @@ public class StartGameService
             GameMode = GameMode.Host,
             SessionName = roomId,
             Scene = sceneInfo,
-            SceneManager = _sceneManager
+            SceneManager = _sceneManager,
+            ObjectProvider = _networkObjectProvider
         };
 
         var result = await _runner.StartGame(args);
@@ -51,7 +55,8 @@ public class StartGameService
             GameMode = GameMode.Client,
             SessionName = roomId,
             Scene = sceneInfo,
-            SceneManager = _sceneManager
+            SceneManager = _sceneManager,
+            ObjectProvider = _networkObjectProvider
         };
 
         var result = await _runner.StartGame(args);
