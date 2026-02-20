@@ -1,15 +1,18 @@
 using Fusion;
 using UnityEngine;
 using System.Collections.Generic;
+using Zenject;
 
 public class PlayerSpawner
 {
-    private NetworkPrefabRef _playerPrefab;
     private Dictionary<PlayerRef, NetworkObject> _spawned = new();
+    private NetworkPrefabRef _playerPrefab;
+    private LocalPlayerRegistry _localPlayerRegistry;
 
-    public PlayerSpawner(NetworkPrefabRef playerPrefab)
+    public PlayerSpawner(LocalPlayerRegistry localPlayerRegistry, PrefabsConfig prefabsConfig)
     {
-        _playerPrefab = playerPrefab;
+        _localPlayerRegistry = localPlayerRegistry;
+        _playerPrefab = prefabsConfig.PlayerPrefab;
     }
 
     public void SpawnPlayer(NetworkRunner runner, PlayerRef player)
@@ -17,6 +20,8 @@ public class PlayerSpawner
         Vector3 pos = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
 
         NetworkObject obj = runner.Spawn(_playerPrefab, pos, Quaternion.identity, player);
+
+        obj.GetComponent<Player>().Init(_localPlayerRegistry);
 
         _spawned[player] = obj;
     }
