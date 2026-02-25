@@ -6,7 +6,9 @@ public class Player : NetworkBehaviour, ILocalPlayerCameraTarget
 {
     public class Factory : PlaceholderFactory<Player> { }
 
-    [SerializeField] private float _speed = 5f;
+    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _turnSpeed = 180f;
+
     public Transform FollowTarget => transform;
     private LocalPlayerRegistry _registry;
 
@@ -33,10 +35,16 @@ public class Player : NetworkBehaviour, ILocalPlayerCameraTarget
         if (!HasStateAuthority)
             return;
 
-        if (GetInput(out InputData input))
+        if (GetInput<InputData>(out var input))
         {
-            Vector3 dir = new Vector3(input.Move.x, 0, input.Move.y);
-            transform.position += dir * (_speed * Runner.DeltaTime);
+            float deltaTime = Runner.DeltaTime;
+
+            float turnAmount = input.Turn * _turnSpeed * deltaTime;
+            transform.Rotate(0f, turnAmount, 0f);
+
+            Vector3 move = transform.forward * (input.Forward * _moveSpeed * deltaTime);
+
+            transform.position += move;
         }
     }
 }

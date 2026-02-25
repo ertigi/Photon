@@ -3,5 +3,6 @@ using UnityEngine;
 
 public struct InputData : INetworkInput
 {
-    public Vector2 Move;
+    public float Forward;
+    public float Turn;
 }

@@ -24,10 +24,14 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
+        var inputData = _inputProvider.ReadMove();
+        
         var data = new InputData
         {
-            Move = _inputProvider.ReadMove()
+            Forward = inputData.x,
+            Turn = inputData.y
         };
+
         input.Set(data);
     }
 
