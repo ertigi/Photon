@@ -15,3 +15,6 @@ MonoBehaviour:
   <NetworkPlayerPrefab>k__BackingField:
     RawGuidValue: 17e6e9c349b071f4696f9743dcd337ed
   <PlayerPrefabSource>k__BackingField: {fileID: 4293247417272612289, guid: 17e6e9c349b071f4696f9743dcd337ed, type: 3}
+  <NetworkEnemyPrefab>k__BackingField:
+    RawGuidValue: c29c2c47bd6226f48b35019d435ea213
+  <EnemyPrefabSource>k__BackingField: {fileID: 3402729703315923696, guid: c29c2c47bd6226f48b35019d435ea213, type: 3}

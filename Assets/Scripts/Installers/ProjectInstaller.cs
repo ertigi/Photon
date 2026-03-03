@@ -20,7 +20,10 @@ public class ProjectInstaller : MonoInstaller
         Container.Bind<IInputProvider>().To<KeyboardInputProvider>().AsSingle();
 
         Container.Bind<LocalPlayerRegistry>().AsSingle();
+
         Container.BindFactory<Player, Player.Factory>().FromComponentInNewPrefab(_prefabsConfig.PlayerPrefabSource);
+        Container.BindFactory<EnemyView, EnemyView.Factory>().FromComponentInNewPrefab(_prefabsConfig.EnemyPrefabSource);
+
         Container.Bind<INetworkObjectProvider>().FromMethod(ctx => CreateObjectProvider(ctx.Container)).AsSingle();
 
         Container.Bind<PlayerSpawner>().AsSingle();
@@ -32,12 +35,15 @@ public class ProjectInstaller : MonoInstaller
     private INetworkObjectProvider CreateObjectProvider(DiContainer c)
     {
         var playerFactory = c.Resolve<Player.Factory>();
+        var enemyFactory = c.Resolve<EnemyView.Factory>();
 
         NetworkObjectGuid playerGuid = (NetworkObjectGuid)_prefabsConfig.NetworkPlayerPrefab;
+        NetworkObjectGuid enemyGuid = (NetworkObjectGuid)_prefabsConfig.NetworkEnemyPrefab;
 
         var map = new Dictionary<NetworkObjectGuid, Func<NetworkObject>>
         {
-            [playerGuid] = () => playerFactory.Create().GetComponent<NetworkObject>()
+            [playerGuid] = () => playerFactory.Create().GetComponent<NetworkObject>(),
+            [enemyGuid] = () => enemyFactory.Create().GetComponent<NetworkObject>()
         };
 
         return new ZenjectFusionObjectProvider(map);
