@@ -12,12 +12,13 @@ public class PlayerSpawner
         _playerPrefab = prefabsConfig.NetworkPlayerPrefab;
     }
 
-    public void SpawnPlayer(NetworkRunner runner, PlayerRef player)
+    public NetworkObject SpawnPlayer(NetworkRunner runner, PlayerRef player)
     {
         Vector3 pos = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
         NetworkObject obj = runner.Spawn(_playerPrefab, pos, Quaternion.identity, player);
         runner.SetPlayerObject(player, obj);
         _spawned[player] = obj;
+        return obj;
     }
 
     public void DespawnPlayer(NetworkRunner runner, PlayerRef player)

@@ -81,6 +81,7 @@ MonoBehaviour:
   _playerStatsConfig: {fileID: 11400000, guid: 73009311c0164af58063bcde34ee93cb, type: 2}
   _progressionConfig: {fileID: 11400000, guid: 4a6fef6a132f4bba9f74117cfaf2af62, type: 2}
   _lootConfig: {fileID: 11400000, guid: c13a6eb13d83431a88d54bb9f3b51f52, type: 2}
+  _enemySpawnConfig: {fileID: 11400000, guid: 6ab938909f554434c9b729118d78ea22, type: 2}
 --- !u!1 &7894760218948720784
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,6 +12,10 @@ public class GameplayInstaller : MonoInstaller
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
 
+        Container.Bind<EnemySpawnService>()
+            .FromResolve(null, InjectSources.Parent)
+            .AsSingle();
+
         Container.Bind<EnemyTargetingService>()
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
@@ -49,6 +53,10 @@ public class GameplayInstaller : MonoInstaller
             .AsSingle();
 
         Container.Bind<LootConfig>()
+            .FromResolve(null, InjectSources.Parent)
+            .AsSingle();
+
+        Container.Bind<EnemySpawnConfig>()
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
 

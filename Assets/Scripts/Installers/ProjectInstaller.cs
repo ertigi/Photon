@@ -12,6 +12,7 @@ public class ProjectInstaller : MonoInstaller
     [SerializeField] private PlayerStatsConfig _playerStatsConfig;
     [SerializeField] private ProgressionConfig _progressionConfig;
     [SerializeField] private LootConfig _lootConfig;
+    [SerializeField] private EnemySpawnConfig _enemySpawnConfig;
 
 
     public override void InstallBindings()
@@ -22,12 +23,17 @@ public class ProjectInstaller : MonoInstaller
         Container.BindInstance(_playerStatsConfig).AsSingle();
         Container.BindInstance(_progressionConfig).AsSingle();
         Container.BindInstance(_lootConfig).AsSingle();
+        Container.BindInstance(_enemySpawnConfig).AsSingle();
 
         Container.Bind<IInputProvider>().To<KeyboardInputProvider>().AsSingle();
 
         Container.Bind<LocalPlayerRegistry>().AsSingle();
+        Container.Bind<PlayerIdentityService>().AsSingle();
+        Container.Bind<RoomAccessControlService>().AsSingle();
+        Container.BindInterfacesAndSelfTo<ClientLobbyReturnService>().AsSingle().NonLazy();
         Container.Bind<PlayerRuntimeRegistry>().AsSingle();
         Container.Bind<EnemyRuntimeRegistry>().AsSingle();
+        Container.Bind<EnemySpawnService>().AsSingle();
         Container.Bind<EnemyTargetingService>().AsSingle();
         Container.Bind<PlayerDamageService>().AsSingle();
         Container.Bind<EnemyDamageService>().AsSingle();

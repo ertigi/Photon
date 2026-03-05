@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using UnityEngine;
 using Zenject;
@@ -6,10 +9,13 @@ using Zenject;
 public class EnemyController : NetworkBehaviour
 {
     private NetworkPrefabRef _enemyPrefab;
+    private EnemySpawnConfig _enemySpawnConfig;
+    private EnemySpawnService _enemySpawnService;
     private EnemyTargetingService _enemyTargetingService;
     private EnemyLootDropService _enemyLootDropService;
     private PlayerDamageService _playerDamageService;
     private EnemyDamageService _enemyDamageService;
+    private CancellationTokenSource _spawnLoopCts;
 
     [Networked, Capacity(128)]
     private NetworkDictionary<NetworkId, EnemyNetworkData> EnemyDatas => default;
@@ -19,12 +25,16 @@ public class EnemyController : NetworkBehaviour
     [Inject]
     private void Construct(
         PrefabsConfig prefabsConfig,
+        EnemySpawnConfig enemySpawnConfig,
+        EnemySpawnService enemySpawnService,
         EnemyTargetingService enemyTargetingService,
         EnemyLootDropService enemyLootDropService,
         PlayerDamageService playerDamageService,
         EnemyDamageService enemyDamageService)
     {
         _enemyPrefab = prefabsConfig.NetworkEnemyPrefab;
+        _enemySpawnConfig = enemySpawnConfig;
+        _enemySpawnService = enemySpawnService;
         _enemyTargetingService = enemyTargetingService;
         _enemyLootDropService = enemyLootDropService;
         _playerDamageService = playerDamageService;
@@ -33,8 +43,10 @@ public class EnemyController : NetworkBehaviour
 
     public override void Spawned()
     {
-        if (HasStateAuthority)
-            SpawnEnemy(Vector3.zero);
+        if (!HasStateAuthority)
+            return;
+
+        StartSpawnLoop();
     }
 
     public override void FixedUpdateNetwork()
@@ -66,6 +78,16 @@ public class EnemyController : NetworkBehaviour
             HandleEnemyDeath(deadEnemies[i], null);
         }
 
+    }
+
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        StopSpawnLoop();
+    }
+
+    private void OnDestroy()
+    {
+        StopSpawnLoop();
     }
 
     public void SpawnEnemy(Vector3 position)
@@ -131,10 +153,65 @@ public class EnemyController : NetworkBehaviour
         }
 
         EnemyDatas.Remove(id);
+    }
 
-        
-        if (HasStateAuthority)
-            SpawnEnemy(Vector3.zero);
+    private void StartSpawnLoop()
+    {
+        StopSpawnLoop();
+
+        _spawnLoopCts = new CancellationTokenSource();
+        SpawnLoopAsync(_spawnLoopCts.Token).Forget();
+    }
+
+    private void StopSpawnLoop()
+    {
+        if (_spawnLoopCts == null)
+            return;
+
+        _spawnLoopCts.Cancel();
+        _spawnLoopCts.Dispose();
+        _spawnLoopCts = null;
+    }
+
+    private async UniTaskVoid SpawnLoopAsync(CancellationToken cancellationToken)
+    {
+        TrySpawnByLimit();
+
+        try
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                float interval = Mathf.Max(0.1f, _enemySpawnConfig.Interval);
+                await UniTask.Delay(
+                    TimeSpan.FromSeconds(interval),
+                    DelayType.DeltaTime,
+                    PlayerLoopTiming.FixedUpdate,
+                    cancellationToken);
+
+                if (cancellationToken.IsCancellationRequested || !HasStateAuthority || Runner == null || !Runner.IsRunning)
+                    return;
+
+                TrySpawnByLimit();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void TrySpawnByLimit()
+    {
+        int maxEnemies = Mathf.Max(0, _enemySpawnConfig.MaxEnemies);
+        if (maxEnemies <= 0)
+            return;
+
+        if (_runtimes.Count >= maxEnemies)
+            return;
+
+        if (!_enemySpawnService.TryGetSpawnPoint(Runner, out var spawnPosition))
+            return;
+
+        SpawnEnemy(spawnPosition);
     }
 }
 
