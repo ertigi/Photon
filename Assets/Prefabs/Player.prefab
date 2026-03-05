@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6958607859195579808}
   - component: {fileID: 4293247417272612289}
   - component: {fileID: 2718346103097731111}
+  - component: {fileID: 9052345678901234567}
   - component: {fileID: 7502033772165166681}
   - component: {fileID: 1421133977115274986}
   m_Layer: 0
@@ -62,6 +63,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3229f577d3034be3b2a37d3dbf2c9580, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &9052345678901234567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 567106590010532390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bc18ea7e2845c39f83e01fd0122d97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scanInterval: 0.1
+  _fxHeight: 0.5
+  _fxDuration: 0.12
+  _fxWidth: 0.04
+  _fxColor: {r: 1, g: 0.25, b: 0.25, a: 1}
 --- !u!114 &7502033772165166681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,6 +99,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 4293247417272612289}
   - {fileID: 2718346103097731111}
+  - {fileID: 9052345678901234567}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &1421133977115274986
 MonoBehaviour:

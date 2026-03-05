@@ -7,6 +7,8 @@ public class EnemyController : NetworkBehaviour
 {
     private NetworkPrefabRef _enemyPrefab;
     private EnemyTargetingService _enemyTargetingService;
+    private PlayerDamageService _playerDamageService;
+    private EnemyDamageService _enemyDamageService;
 
     [Networked, Capacity(128)]
     private NetworkDictionary<NetworkId, EnemyNetworkData> EnemyDatas => default;
@@ -14,10 +16,16 @@ public class EnemyController : NetworkBehaviour
     private readonly Dictionary<NetworkId, Enemy> _runtimes = new();
 
     [Inject]
-    private void Construct(PrefabsConfig prefabsConfig, EnemyTargetingService enemyTargetingService)
+    private void Construct(
+        PrefabsConfig prefabsConfig,
+        EnemyTargetingService enemyTargetingService,
+        PlayerDamageService playerDamageService,
+        EnemyDamageService enemyDamageService)
     {
         _enemyPrefab = prefabsConfig.NetworkEnemyPrefab;
         _enemyTargetingService = enemyTargetingService;
+        _playerDamageService = playerDamageService;
+        _enemyDamageService = enemyDamageService;
     }
 
     public override void Spawned()
@@ -31,50 +39,112 @@ public class EnemyController : NetworkBehaviour
         if (!HasStateAuthority)
             return;
 
-        foreach (var runtime in _runtimes.Values)
+        var deadEnemies = new List<NetworkId>();
+
+        foreach (var runtimeEntry in _runtimes)
         {
+            NetworkId enemyId = runtimeEntry.Key;
+            Enemy runtime = runtimeEntry.Value;
+
             if (EnemyDatas.TryGet(runtime.Id, out var state))
             {
                 if (state.HP <= 0)
                 {
-                    Runner.Despawn(runtime.View.Object);
+                    deadEnemies.Add(enemyId);
                     continue;
                 }
             }
 
             runtime.StateMachine.Tick(Runner.DeltaTime);
         }
+
+        for (int i = 0; i < deadEnemies.Count; i++)
+        {
+            HandleEnemyDeath(deadEnemies[i], null);
+        }
+
     }
 
     public void SpawnEnemy(Vector3 position)
     {
         var obj = Runner.Spawn(_enemyPrefab, position, Quaternion.identity);
         var view = obj.GetComponent<EnemyView>();
+        view.SetOwnerController(this);
         var id = view.Object.Id;
 
         EnemyDatas.Add(id, new EnemyNetworkData { HP = 100 });
 
-        var runtime = new Enemy(id, view, _enemyTargetingService);
+        var runtime = new Enemy(id, view, _enemyTargetingService, _playerDamageService);
 
         _runtimes.Add(id, runtime);
     }
 
     public void ApplyDamage(NetworkId id, int damage)
     {
+        _enemyDamageService.ApplyDamage(this, id, damage);
+    }
+
+    public bool TryApplyDamage(NetworkId id, int damage, NetworkId? attackerId = null)
+    {
+        if (!HasStateAuthority || damage <= 0)
+            return false;
+
+        if (!EnemyDatas.TryGet(id, out var state))
+            return false;
+
+        if (state.HP <= 0)
+        {
+            HandleEnemyDeath(id, attackerId);
+            return false;
+        }
+
+        int nextHp = Mathf.Max(0, state.HP - damage);
+        state.HP = nextHp;
+
+        if (nextHp <= 0)
+        {
+            HandleEnemyDeath(id, attackerId);
+            return true;
+        }
+
+        EnemyDatas.Set(id, state);
+        return true;
+    }
+
+    private void HandleEnemyDeath(NetworkId id, NetworkId? killerId)
+    {
         if (!HasStateAuthority)
             return;
 
-        if (!EnemyDatas.TryGet(id, out var state))
-            return;
+        if (_runtimes.TryGetValue(id, out var runtime))
+        {
+            Vector3 deathPosition = runtime.View != null ? runtime.View.transform.position : Vector3.zero;
+            SpawnLootStub(deathPosition, killerId);
 
-        state.HP -= damage;
-        EnemyDatas.Set(id, state);
+            if (runtime.View != null && runtime.View.Object != null && runtime.View.Object.IsValid)
+                Runner.Despawn(runtime.View.Object);
+
+            _runtimes.Remove(id);
+        }
+
+        EnemyDatas.Remove(id);
+
+        
+        if (HasStateAuthority)
+            SpawnEnemy(Vector3.zero);
+    }
+
+    private static void SpawnLootStub(Vector3 position, NetworkId? killerId)
+    {
+        string killer = killerId.HasValue ? killerId.Value.ToString() : "none";
+        Debug.Log($"[EnemyController] Enemy died at {position}, loot drop stub, killer: {killer}");
     }
 }
 
 public class Enemy
 {
     private readonly EnemyTargetingService _enemyTargetingService;
+    private readonly PlayerDamageService _playerDamageService;
 
     public NetworkId Id;
     public EnemyView View;
@@ -89,14 +159,21 @@ public class Enemy
 
     public float AttackCooldown = 1.5f;
     public float AttackTimer;
+    public int AttackDamage = 5;
+    public PlayerDamageService PlayerDamageService => _playerDamageService;
 
     public StateMachine StateMachine;
 
-    public Enemy(NetworkId id, EnemyView view, EnemyTargetingService enemyTargetingService)
+    public Enemy(
+        NetworkId id,
+        EnemyView view,
+        EnemyTargetingService enemyTargetingService,
+        PlayerDamageService playerDamageService)
     {
         Id = id;
         View = view;
         _enemyTargetingService = enemyTargetingService;
+        _playerDamageService = playerDamageService;
         StateMachine = new StateMachine(
             new EnemyIdleState(this),
             new EnemyChaseState(this),
@@ -142,7 +219,10 @@ public class Enemy
 
     public void TryDamagePlayer()
     {
+        if (TargetStats == null)
+            return;
 
+        _playerDamageService.ApplyDamage(TargetStats, AttackDamage, Id);
     }
 }
 

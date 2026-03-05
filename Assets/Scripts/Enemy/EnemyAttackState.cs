@@ -46,8 +46,10 @@ public class EnemyAttackState : IState
 
         if (_enemy.AttackTimer >= _enemy.AttackCooldown)
         {
-            _enemy.AttackTimer = 0;
-            _enemy.TryDamagePlayer();
+            _enemy.AttackTimer = 0f;
+
+            if (_enemy.TargetStats != null)
+                _enemy.PlayerDamageService.ApplyDamage(_enemy.TargetStats, _enemy.AttackDamage, _enemy.Id);
         }
     }
 }

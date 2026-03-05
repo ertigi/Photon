@@ -9,6 +9,9 @@ public class EnemyView : NetworkBehaviour
     [SerializeField] private float _proxyLerp = 20f;
 
     private EnemyRuntimeRegistry _runtimeRegistry;
+    private EnemyController _ownerController;
+
+    public EnemyController OwnerController => _ownerController;
 
     [Networked] private Vector3 NetworkPosition { get; set; }
     [Networked] private Quaternion NetworkRotation { get; set; }
@@ -58,11 +61,18 @@ public class EnemyView : NetworkBehaviour
     public override void Despawned(NetworkRunner runner, bool hasState)
     {
         _runtimeRegistry.Unregister(this);
+        _ownerController = null;
     }
 
     private void OnDestroy()
     {
         _runtimeRegistry?.Unregister(this);
+        _ownerController = null;
+    }
+
+    public void SetOwnerController(EnemyController ownerController)
+    {
+        _ownerController = ownerController;
     }
 
     private void EnforceGroundPlane()

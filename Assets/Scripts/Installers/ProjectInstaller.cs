@@ -27,6 +27,8 @@ public class ProjectInstaller : MonoInstaller
         Container.Bind<PlayerRuntimeRegistry>().AsSingle();
         Container.Bind<EnemyRuntimeRegistry>().AsSingle();
         Container.Bind<EnemyTargetingService>().AsSingle();
+        Container.Bind<PlayerDamageService>().AsSingle();
+        Container.Bind<EnemyDamageService>().AsSingle();
         Container.Bind<ExperienceCurveService>().AsSingle();
         Container.Bind<LevelBonusRollService>().AsSingle();
 

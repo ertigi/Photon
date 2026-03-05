@@ -16,6 +16,14 @@ public class GameplayInstaller : MonoInstaller
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
 
+        Container.Bind<PlayerDamageService>()
+            .FromResolve(null, InjectSources.Parent)
+            .AsSingle();
+
+        Container.Bind<EnemyDamageService>()
+            .FromResolve(null, InjectSources.Parent)
+            .AsSingle();
+
         Container.Bind<ExperienceCurveService>()
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
