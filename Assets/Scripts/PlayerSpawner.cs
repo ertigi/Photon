@@ -16,13 +16,17 @@ public class PlayerSpawner
     {
         Vector3 pos = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
         NetworkObject obj = runner.Spawn(_playerPrefab, pos, Quaternion.identity, player);
+        runner.SetPlayerObject(player, obj);
         _spawned[player] = obj;
     }
 
     public void DespawnPlayer(NetworkRunner runner, PlayerRef player)
     {
         if (_spawned.TryGetValue(player, out var obj) && obj != null)
+        {
+            runner.SetPlayerObject(player, null);
             runner.Despawn(obj);
+        }
 
         _spawned.Remove(player);
     }
