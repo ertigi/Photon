@@ -11,12 +11,12 @@ public class EnemyChaseState : IState
 
     public void Enter()
     {
-        Debug.Log($"[EnemyState] Enter Chase (EnemyId: {_enemy.Id})");
+        
     }
 
     public void Exit()
     {
-        Debug.Log($"[EnemyState] Exit Chase (EnemyId: {_enemy.Id})");
+        
     }
 
     public void Tick(float deltaTime)

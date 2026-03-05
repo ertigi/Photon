@@ -9,12 +9,12 @@ public class EnemyIdleState : IState
 
     public void Enter()
     {
-        UnityEngine.Debug.Log($"[EnemyState] Enter Idle (EnemyId: {_enemy.Id})");
+        
     }
 
     public void Exit()
     {
-        UnityEngine.Debug.Log($"[EnemyState] Exit Idle (EnemyId: {_enemy.Id})");
+        
     }
 
     public void Tick(float deltaTime)

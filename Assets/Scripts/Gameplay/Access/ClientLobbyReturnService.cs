@@ -37,6 +37,11 @@ public class ClientLobbyReturnService : IInitializable, IDisposable
         _cts = null;
     }
 
+    public void RequestReturnToMenu()
+    {
+        ReturnToMenuAsync(CancellationToken.None).Forget();
+    }
+
     private async UniTaskVoid WatchDeathLoopAsync(CancellationToken cancellationToken)
     {
         try

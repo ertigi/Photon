@@ -228,7 +228,6 @@ public class Enemy
 
     public float MoveSpeed = 3f;
     public float RotationSpeed = 180f;
-    public float AggroRadius = 12f;
     public float AttackDistance = 2f;
 
     public float AttackCooldown = 1.5f;
@@ -262,7 +261,6 @@ public class Enemy
     {
         if (_enemyTargetingService.TryGetClosestAlivePlayer(
                 View.transform.position,
-                AggroRadius,
                 out var player,
                 out var playerStats))
         {
@@ -316,17 +314,13 @@ public class EnemyTargetingService
 
     public bool TryGetClosestAlivePlayer(
         Vector3 enemyPosition,
-        float maxDistance,
         out Player player,
         out PlayerStatsNetwork playerStats)
     {
         player = null;
         playerStats = null;
 
-        if (maxDistance <= 0f)
-            return false;
-
-        float bestDistanceSqr = maxDistance * maxDistance;
+        float bestDistanceSqr = float.MaxValue;
         bool found = false;
 
         foreach (var candidate in _playerRuntimeRegistry.GetAll())

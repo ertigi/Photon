@@ -11,13 +11,12 @@ public class EnemyAttackState : IState
 
     public void Enter()
     {
-        Debug.Log($"[EnemyState] Enter Attack (EnemyId: {_enemy.Id})");
         _enemy.AttackTimer = 0f;
     }
 
     public void Exit()
     {
-        Debug.Log($"[EnemyState] Exit Attack (EnemyId: {_enemy.Id})");
+        
     }
 
     public void Tick(float deltaTime)

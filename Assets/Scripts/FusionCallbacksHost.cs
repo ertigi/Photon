@@ -11,6 +11,7 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
     private readonly NetworkRunner _networkRunner;
     private readonly PlayerIdentityService _playerIdentityService;
     private readonly RoomAccessControlService _roomAccessControlService;
+    private readonly ClientLobbyReturnService _clientLobbyReturnService;
 
     private readonly Dictionary<PlayerRef, PlayerStatsNetwork> _statsByPlayerRef = new();
     private readonly Dictionary<PlayerStatsNetwork, PlayerRef> _playerRefByStats = new();
@@ -20,13 +21,15 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
         PlayerSpawner playerSpawner,
         NetworkRunner networkRunner,
         PlayerIdentityService playerIdentityService,
-        RoomAccessControlService roomAccessControlService)
+        RoomAccessControlService roomAccessControlService,
+        ClientLobbyReturnService clientLobbyReturnService)
     {
         _inputProvider = inputProvider;
         _playerSpawner = playerSpawner;
         _networkRunner = networkRunner;
         _playerIdentityService = playerIdentityService;
         _roomAccessControlService = roomAccessControlService;
+        _clientLobbyReturnService = clientLobbyReturnService;
         _networkRunner.AddCallbacks(this);
     }
 
@@ -103,7 +106,13 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
     }
 
     public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) {}
-    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) {}
+    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
+    {
+        if (runner.IsServer)
+            return;
+
+        _clientLobbyReturnService.RequestReturnToMenu();
+    }
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) {}
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) {}
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
