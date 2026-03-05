@@ -51,5 +51,13 @@ public class GameplayInstaller : MonoInstaller
         Container.Bind<LootConfig>()
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
+
+        Container.Bind<GameplayHudView>()
+            .FromComponentInHierarchy()
+            .AsSingle();
+
+        Container.Bind<GameplayHudPresenter>()
+            .FromComponentInHierarchy()
+            .AsSingle();
     }
 }
