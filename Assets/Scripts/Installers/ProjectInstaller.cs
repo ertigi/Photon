@@ -36,7 +36,7 @@ public class ProjectInstaller : MonoInstaller
         Container.Bind<INetworkObjectProvider>().FromMethod(ctx => CreateObjectProvider(ctx.Container)).AsSingle();
 
         Container.Bind<PlayerSpawner>().AsSingle();
-        Container.BindInterfacesTo<FusionCallbacksHost>().AsSingle();
+        Container.BindInterfacesTo<FusionCallbacksHost>().AsSingle().NonLazy();
 
         Container.Bind<StartGameService>().AsSingle();
     }

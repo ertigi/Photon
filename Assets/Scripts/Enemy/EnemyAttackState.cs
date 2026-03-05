@@ -38,7 +38,7 @@ public class EnemyAttackState : IState
 
         if (distance > _enemy.AttackDistance)
         {
-            _enemy.StateMachine.SetState<EnemyChaseState>();
+            _enemy.StateMachine.SetState<EnemyIdleState>();
             return;
         }
 

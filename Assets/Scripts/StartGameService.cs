@@ -17,6 +17,9 @@ public class StartGameService
         _runner = runner;
         _sceneManager = sceneManager;
         _networkObjectProvider = networkObjectProvider;
+
+        // Required for local multiplayer testing in two windows/clients.
+        Application.runInBackground = true;
     }
 
     public async UniTask StartAsHost(string roomId)
