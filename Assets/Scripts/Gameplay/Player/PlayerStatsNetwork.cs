@@ -21,6 +21,7 @@ public class PlayerStatsNetwork : NetworkBehaviour
     [Networked] public bool IsDead { get; private set; }
 
     public event Action<PlayerStatsNetwork> ServerDied;
+    public event Action OnChangeHP;
 
     [Inject]
     public void Construct(
@@ -52,22 +53,19 @@ public class PlayerStatsNetwork : NetworkBehaviour
 
         if (HP <= 0)
             MarkDead();
+
+        OnChangeHP?.Invoke();
     }
 
     public void Heal(int value)
     {
-        Heal((float)value);
-    }
-
-    public void Heal(float value)
-    {
         if (!HasStateAuthority || IsDead || value <= 0f)
             return;
+            
+        HP = Mathf.Clamp(HP + value, 0, MaxHP);
 
-        int amount = Mathf.Max(1, Mathf.RoundToInt(value));
-        HP = Mathf.Clamp(HP + amount, 0, MaxHP);
+        OnChangeHP?.Invoke();
     }
-
     public void AddXp(int value)
     {
         if (!HasStateAuthority || IsDead || value <= 0)
@@ -135,6 +133,8 @@ public class PlayerStatsNetwork : NetworkBehaviour
             HP = MaxHP;
             threshold = _experienceCurveService.GetXpForNextLevel(Level);
         }
+        
+        OnChangeHP?.Invoke();
     }
 
     private void MarkDead()
