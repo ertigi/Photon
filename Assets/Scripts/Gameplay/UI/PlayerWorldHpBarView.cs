@@ -19,15 +19,13 @@ public class PlayerWorldHpBarView : MonoBehaviour
         _stats = GetComponent<PlayerStatsNetwork>();
         _player = GetComponent<Player>();
 
-        UpdateSlider();
-
         if (_barParent != null)
             _barParent.parent = null;
     }
 
     private void UpdateSlider()
     {
-        if (_hpBar == null || _stats == null)
+        if (_hpBar == null || _stats == null || !_stats.StateBufferIsValid)
             return;
 
         int maxHp = Mathf.Max(1, _stats.MaxHP);
@@ -44,7 +42,8 @@ public class PlayerWorldHpBarView : MonoBehaviour
         if (_isLocalPlayer)
             return;
 
-        if (_stats != null && (_stats.HP != _lastHp || _stats.MaxHP != _lastMaxHp))
+        if (_stats != null && _stats.StateBufferIsValid &&
+            (_stats.HP != _lastHp || _stats.MaxHP != _lastMaxHp || _lastMaxHp <= 0))
             UpdateSlider();
 
         if (_barParent != null)
