@@ -80,6 +80,7 @@ MonoBehaviour:
   _prefabsConfig: {fileID: 11400000, guid: ac8d59c9fb6a85348a6bc15863a5909e, type: 2}
   _playerStatsConfig: {fileID: 11400000, guid: 73009311c0164af58063bcde34ee93cb, type: 2}
   _progressionConfig: {fileID: 11400000, guid: 4a6fef6a132f4bba9f74117cfaf2af62, type: 2}
+  _lootConfig: {fileID: 11400000, guid: c13a6eb13d83431a88d54bb9f3b51f52, type: 2}
 --- !u!1 &7894760218948720784
 GameObject:
   m_ObjectHideFlags: 0

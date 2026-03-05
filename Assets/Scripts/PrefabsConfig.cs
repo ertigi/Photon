@@ -8,5 +8,9 @@ public class PrefabsConfig : ScriptableObject
     [field: SerializeField] public Player PlayerPrefabSource { get; private set; }
     [field: SerializeField] public NetworkPrefabRef NetworkEnemyPrefab { get; private set; }
     [field: SerializeField] public EnemyView EnemyPrefabSource { get; private set; }
+    [field: SerializeField] public NetworkPrefabRef NetworkPotionLootPrefab { get; private set; }
+    [field: SerializeField] public LootPickupNetwork PotionLootPrefabSource { get; private set; }
+    [field: SerializeField] public NetworkPrefabRef NetworkXpCrystalLootPrefab { get; private set; }
+    [field: SerializeField] public LootPickupNetwork XpCrystalLootPrefabSource { get; private set; }
 }
 

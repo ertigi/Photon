@@ -18,3 +18,9 @@ MonoBehaviour:
   <NetworkEnemyPrefab>k__BackingField:
     RawGuidValue: c29c2c47bd6226f48b35019d435ea213
   <EnemyPrefabSource>k__BackingField: {fileID: 3402729703315923696, guid: c29c2c47bd6226f48b35019d435ea213, type: 3}
+  <NetworkPotionLootPrefab>k__BackingField:
+    RawGuidValue: 7b5ce80fb6b74d8f86c205af8e4ed03a
+  <PotionLootPrefabSource>k__BackingField: {fileID: 500000000000000003, guid: 7b5ce80fb6b74d8f86c205af8e4ed03a, type: 3}
+  <NetworkXpCrystalLootPrefab>k__BackingField:
+    RawGuidValue: 5b81f0c46ef44a5eb9cfa8bb6ce2ca2b
+  <XpCrystalLootPrefabSource>k__BackingField: {fileID: 600000000000000003, guid: 5b81f0c46ef44a5eb9cfa8bb6ce2ca2b, type: 3}

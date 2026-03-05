@@ -24,6 +24,14 @@ public class GameplayInstaller : MonoInstaller
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
 
+        Container.Bind<LootApplyService>()
+            .FromResolve(null, InjectSources.Parent)
+            .AsSingle();
+
+        Container.Bind<EnemyLootDropService>()
+            .FromResolve(null, InjectSources.Parent)
+            .AsSingle();
+
         Container.Bind<ExperienceCurveService>()
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
@@ -37,6 +45,10 @@ public class GameplayInstaller : MonoInstaller
             .AsSingle();
 
         Container.Bind<ProgressionConfig>()
+            .FromResolve(null, InjectSources.Parent)
+            .AsSingle();
+
+        Container.Bind<LootConfig>()
             .FromResolve(null, InjectSources.Parent)
             .AsSingle();
     }

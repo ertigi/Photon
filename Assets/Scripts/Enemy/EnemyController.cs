@@ -7,6 +7,7 @@ public class EnemyController : NetworkBehaviour
 {
     private NetworkPrefabRef _enemyPrefab;
     private EnemyTargetingService _enemyTargetingService;
+    private EnemyLootDropService _enemyLootDropService;
     private PlayerDamageService _playerDamageService;
     private EnemyDamageService _enemyDamageService;
 
@@ -19,11 +20,13 @@ public class EnemyController : NetworkBehaviour
     private void Construct(
         PrefabsConfig prefabsConfig,
         EnemyTargetingService enemyTargetingService,
+        EnemyLootDropService enemyLootDropService,
         PlayerDamageService playerDamageService,
         EnemyDamageService enemyDamageService)
     {
         _enemyPrefab = prefabsConfig.NetworkEnemyPrefab;
         _enemyTargetingService = enemyTargetingService;
+        _enemyLootDropService = enemyLootDropService;
         _playerDamageService = playerDamageService;
         _enemyDamageService = enemyDamageService;
     }
@@ -119,7 +122,7 @@ public class EnemyController : NetworkBehaviour
         if (_runtimes.TryGetValue(id, out var runtime))
         {
             Vector3 deathPosition = runtime.View != null ? runtime.View.transform.position : Vector3.zero;
-            SpawnLootStub(deathPosition, killerId);
+            _enemyLootDropService.TrySpawnLoot(Runner, deathPosition, killerId);
 
             if (runtime.View != null && runtime.View.Object != null && runtime.View.Object.IsValid)
                 Runner.Despawn(runtime.View.Object);
@@ -132,12 +135,6 @@ public class EnemyController : NetworkBehaviour
         
         if (HasStateAuthority)
             SpawnEnemy(Vector3.zero);
-    }
-
-    private static void SpawnLootStub(Vector3 position, NetworkId? killerId)
-    {
-        string killer = killerId.HasValue ? killerId.Value.ToString() : "none";
-        Debug.Log($"[EnemyController] Enemy died at {position}, loot drop stub, killer: {killer}");
     }
 }
 
@@ -287,4 +284,3 @@ public class EnemyTargetingService
         return true;
     }
 }
-
