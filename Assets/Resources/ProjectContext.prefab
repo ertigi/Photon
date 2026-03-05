@@ -78,6 +78,8 @@ MonoBehaviour:
   _runner: {fileID: 3515616155774231189}
   _sceneManager: {fileID: 8255340550115359481}
   _prefabsConfig: {fileID: 11400000, guid: ac8d59c9fb6a85348a6bc15863a5909e, type: 2}
+  _playerStatsConfig: {fileID: 11400000, guid: 73009311c0164af58063bcde34ee93cb, type: 2}
+  _progressionConfig: {fileID: 11400000, guid: 4a6fef6a132f4bba9f74117cfaf2af62, type: 2}
 --- !u!1 &7894760218948720784
 GameObject:
   m_ObjectHideFlags: 0

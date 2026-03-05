@@ -1,8 +1,7 @@
 using Fusion;
-using UnityEngine;
 
 public struct InputData : INetworkInput
 {
-    public float Forward;
-    public float Turn;
+    public float MoveX;
+    public float MoveY;
 }

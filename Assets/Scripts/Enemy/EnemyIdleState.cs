@@ -19,9 +19,9 @@ public class EnemyIdleState : IState
 
     public void Tick(float deltaTime)
     {
-        _enemy.AssignTarget(_enemy);
+        _enemy.AssignTarget();
 
-        if (_enemy.Target != null)
+        if (_enemy.HasAliveTarget())
             _enemy.StateMachine.SetState<EnemyChaseState>();
     }
 }

@@ -22,10 +22,14 @@ public class EnemyAttackState : IState
 
     public void Tick(float deltaTime)
     {
-        if (_enemy.Target == null)
+        if (!_enemy.HasAliveTarget())
         {
-            _enemy.StateMachine.SetState<EnemyIdleState>();
-            return;
+            _enemy.AssignTarget();
+            if (!_enemy.HasAliveTarget())
+            {
+                _enemy.StateMachine.SetState<EnemyIdleState>();
+                return;
+            }
         }
 
         Vector3 dir = _enemy.Target.position - _enemy.View.transform.position;

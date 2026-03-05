@@ -9,6 +9,8 @@ public class ProjectInstaller : MonoInstaller
     [SerializeField] private NetworkRunner _runner;
     [SerializeField] private NetworkSceneManagerDefault _sceneManager;
     [SerializeField] private PrefabsConfig _prefabsConfig;
+    [SerializeField] private PlayerStatsConfig _playerStatsConfig;
+    [SerializeField] private ProgressionConfig _progressionConfig;
 
 
     public override void InstallBindings()
@@ -16,10 +18,17 @@ public class ProjectInstaller : MonoInstaller
         Container.BindInstance(_runner).AsSingle();
         Container.BindInstance(_sceneManager).AsSingle();
         Container.BindInstance(_prefabsConfig).AsSingle();
+        Container.BindInstance(_playerStatsConfig).AsSingle();
+        Container.BindInstance(_progressionConfig).AsSingle();
 
         Container.Bind<IInputProvider>().To<KeyboardInputProvider>().AsSingle();
 
         Container.Bind<LocalPlayerRegistry>().AsSingle();
+        Container.Bind<PlayerRuntimeRegistry>().AsSingle();
+        Container.Bind<EnemyRuntimeRegistry>().AsSingle();
+        Container.Bind<EnemyTargetingService>().AsSingle();
+        Container.Bind<ExperienceCurveService>().AsSingle();
+        Container.Bind<LevelBonusRollService>().AsSingle();
 
         Container.BindFactory<Player, Player.Factory>().FromComponentInNewPrefab(_prefabsConfig.PlayerPrefabSource);
         Container.BindFactory<EnemyView, EnemyView.Factory>().FromComponentInNewPrefab(_prefabsConfig.EnemyPrefabSource);
