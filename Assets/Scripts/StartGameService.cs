@@ -25,7 +25,6 @@ public class StartGameService
         _playerIdentityService = playerIdentityService;
         _roomAccessControlService = roomAccessControlService;
 
-        // Required for local multiplayer testing in two windows/clients.
         Application.runInBackground = true;
     }
 

@@ -26,7 +26,6 @@ public class ExperienceCurveService
         return Mathf.Max(1, Mathf.RoundToInt(threshold));
     }
 
-    // Backward-compatible alias.
     public int GetXpThreshold(int currentLevel)
     {
         return GetXpForNextLevel(currentLevel);
