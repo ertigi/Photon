@@ -10,7 +10,6 @@ public class PlayerIdentityService
 
     public PlayerIdentityService()
     {
-        // Stable for the lifetime of this client process.
         _clientToken = Guid.NewGuid().ToString("N");
     }
 
