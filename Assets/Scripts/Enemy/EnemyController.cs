@@ -54,30 +54,12 @@ public class EnemyController : NetworkBehaviour
         if (!HasStateAuthority)
             return;
 
-        var deadEnemies = new List<NetworkId>();
-
         foreach (var runtimeEntry in _runtimes)
         {
-            NetworkId enemyId = runtimeEntry.Key;
             Enemy runtime = runtimeEntry.Value;
-
-            if (EnemyDatas.TryGet(runtime.Id, out var state))
-            {
-                if (state.HP <= 0)
-                {
-                    deadEnemies.Add(enemyId);
-                    continue;
-                }
-            }
 
             runtime.StateMachine.Tick(Runner.DeltaTime);
         }
-
-        for (int i = 0; i < deadEnemies.Count; i++)
-        {
-            HandleEnemyDeath(deadEnemies[i], null);
-        }
-
     }
 
     public override void Despawned(NetworkRunner runner, bool hasState)
@@ -109,34 +91,23 @@ public class EnemyController : NetworkBehaviour
         _enemyDamageService.ApplyDamage(this, id, damage);
     }
 
-    public bool TryApplyDamage(NetworkId id, int damage, NetworkId? attackerId = null)
+    public bool TryGetEnemyState(NetworkId id, out EnemyNetworkData state)
     {
-        if (!HasStateAuthority || damage <= 0)
-            return false;
-
-        if (!EnemyDatas.TryGet(id, out var state))
-            return false;
-
-        if (state.HP <= 0)
-        {
-            HandleEnemyDeath(id, attackerId);
-            return false;
-        }
-
-        int nextHp = Mathf.Max(0, state.HP - damage);
-        state.HP = nextHp;
-
-        if (nextHp <= 0)
-        {
-            HandleEnemyDeath(id, attackerId);
-            return true;
-        }
-
-        EnemyDatas.Set(id, state);
-        return true;
+        return EnemyDatas.TryGet(id, out state);
     }
 
-    private void HandleEnemyDeath(NetworkId id, NetworkId? killerId)
+    public void SetEnemyState(NetworkId id, EnemyNetworkData state)
+    {
+        if (!HasStateAuthority)
+            return;
+
+        if (!EnemyDatas.ContainsKey(id))
+            return;
+
+        EnemyDatas.Set(id, state);
+    }
+
+    public void OnEnemyDeath(NetworkId id, NetworkId? killerId)
     {
         if (!HasStateAuthority)
             return;

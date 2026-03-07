@@ -111,7 +111,7 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
         if (runner.IsServer)
             return;
 
-        _clientLobbyReturnService.RequestReturnToMenu();
+        _clientLobbyReturnService.NotifyDisconnected();
     }
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) {}
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) {}
@@ -156,7 +156,7 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
 
         UnsubscribePlayerDeath(player);
 
-        stats.ServerDied += OnServerPlayerDied;
+        stats.RegisterServerDeathCallback(OnServerPlayerDied);
         _statsByPlayerRef[player] = stats;
         _playerRefByStats[stats] = player;
     }
@@ -168,7 +168,7 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
 
         if (stats != null)
         {
-            stats.ServerDied -= OnServerPlayerDied;
+            stats.UnregisterServerDeathCallback(OnServerPlayerDied);
             _playerRefByStats.Remove(stats);
         }
 
@@ -180,7 +180,7 @@ public class FusionCallbacksHost : INetworkRunnerCallbacks, IDisposable
         foreach (var pair in _statsByPlayerRef)
         {
             if (pair.Value != null)
-                pair.Value.ServerDied -= OnServerPlayerDied;
+                pair.Value.UnregisterServerDeathCallback(OnServerPlayerDied);
         }
 
         _statsByPlayerRef.Clear();

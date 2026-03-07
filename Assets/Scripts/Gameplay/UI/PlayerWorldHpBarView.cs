@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerWorldHpBarView : MonoBehaviour
+public class PlayerWorldHpBarView : MonoBehaviour, PlayerStatsNetwork.IRenderChangeListener
 {
     [SerializeField] private Slider _hpBar;
     [SerializeField] private Transform _barParent;
@@ -9,10 +9,9 @@ public class PlayerWorldHpBarView : MonoBehaviour
 
     private PlayerStatsNetwork _stats;
     private Player _player;
-    private int _lastHp = int.MinValue;
-    private int _lastMaxHp = int.MinValue;
     private bool _isLocalPlayer;
     private bool _ownershipResolved;
+    private bool _isBound;
 
     private void Awake()
     {
@@ -23,28 +22,27 @@ public class PlayerWorldHpBarView : MonoBehaviour
             _barParent.parent = null;
     }
 
-    private void UpdateSlider()
+    private void OnEnable()
     {
-        if (_hpBar == null || _stats == null || !_stats.StateBufferIsValid)
-            return;
+        TryBind();
+    }
 
-        int maxHp = Mathf.Max(1, _stats.MaxHP);
-        _hpBar.value = Mathf.Clamp01(_stats.HP / (float)maxHp);
+    private void OnDisable()
+    {
+        Unbind();
+    }
 
-        _lastHp = _stats.HP;
-        _lastMaxHp = _stats.MaxHP;
+    private void OnDestroy()
+    {
+        Unbind();
     }
 
     private void LateUpdate()
     {
+        if (_isBound && (_stats == null || _stats.Object == null || !_stats.Object.IsValid))
+            Unbind();
+
         ResolveOwnership();
-
-        if (_isLocalPlayer)
-            return;
-
-        if (_stats != null && _stats.StateBufferIsValid &&
-            (_stats.HP != _lastHp || _stats.MaxHP != _lastMaxHp || _lastMaxHp <= 0))
-            UpdateSlider();
 
         if (_barParent != null)
             _barParent.position = transform.position + _offset;
@@ -52,7 +50,7 @@ public class PlayerWorldHpBarView : MonoBehaviour
 
     private void ResolveOwnership()
     {
-        if (_ownershipResolved || _player == null || _player.Object == null)
+        if (_ownershipResolved || _player == null || _player.Object == null || !_player.Object.IsValid)
             return;
 
         _ownershipResolved = true;
@@ -60,5 +58,50 @@ public class PlayerWorldHpBarView : MonoBehaviour
 
         if (_isLocalPlayer && _barParent != null)
             _barParent.gameObject.SetActive(false);
+    }
+
+    public void HandleHealthChanged(int hp, int maxHp, bool isDead)
+    {
+        ResolveOwnership();
+
+        if (_hpBar == null || _isLocalPlayer)
+            return;
+
+        int safeMaxHp = Mathf.Max(1, maxHp);
+        _hpBar.value = Mathf.Clamp01(hp / (float)safeMaxHp);
+    }
+
+    public void HandleProgressChanged(int xp, int level)
+    {
+    }
+
+    public void HandleDeathChanged(bool isDead)
+    {
+    }
+
+    private void TryBind()
+    {
+        if (_isBound)
+            return;
+
+        if (_stats == null)
+            _stats = GetComponent<PlayerStatsNetwork>();
+
+        if (_stats == null)
+            return;
+
+        _stats.RegisterRenderListener(this, pushInitialState: true);
+        _isBound = true;
+    }
+
+    private void Unbind()
+    {
+        if (!_isBound)
+            return;
+
+        if (_stats != null)
+            _stats.UnregisterRenderListener(this);
+
+        _isBound = false;
     }
 }

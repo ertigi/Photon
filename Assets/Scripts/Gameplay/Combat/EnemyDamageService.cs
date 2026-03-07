@@ -1,4 +1,5 @@
 using Fusion;
+using UnityEngine;
 
 public class EnemyDamageService
 {
@@ -10,6 +11,24 @@ public class EnemyDamageService
         if (!enemyController.HasStateAuthority)
             return false;
 
-        return enemyController.TryApplyDamage(enemyId, amount, attackerId);
+        if (!enemyController.TryGetEnemyState(enemyId, out var state))
+            return false;
+
+        if (state.HP <= 0)
+        {
+            enemyController.OnEnemyDeath(enemyId, attackerId);
+            return false;
+        }
+
+        int nextHp = Mathf.Max(0, state.HP - amount);
+        if (nextHp <= 0)
+        {
+            enemyController.OnEnemyDeath(enemyId, attackerId);
+            return true;
+        }
+
+        state.HP = nextHp;
+        enemyController.SetEnemyState(enemyId, state);
+        return true;
     }
 }

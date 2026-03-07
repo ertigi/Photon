@@ -2,17 +2,19 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Fusion;
+using UniRx;
 using UnityEngine.SceneManagement;
 using Zenject;
 
-public class ClientLobbyReturnService : IInitializable, IDisposable
+public class ClientLobbyReturnService : IInitializable, IDisposable, PlayerStatsNetwork.IRenderChangeListener
 {
     private const int MenuSceneIndex = 0;
 
     private readonly NetworkRunner _runner;
     private readonly LocalPlayerRegistry _localPlayerRegistry;
 
-    private CancellationTokenSource _cts;
+    private readonly CompositeDisposable _subscriptions = new();
+    private PlayerStatsNetwork _boundStats;
     private bool _isReturning;
 
     public ClientLobbyReturnService(NetworkRunner runner, LocalPlayerRegistry localPlayerRegistry)
@@ -23,18 +25,13 @@ public class ClientLobbyReturnService : IInitializable, IDisposable
 
     public void Initialize()
     {
-        _cts = new CancellationTokenSource();
-        WatchDeathLoopAsync(_cts.Token).Forget();
+        SubscribeLocalPlayerLifecycle();
     }
 
     public void Dispose()
     {
-        if (_cts == null)
-            return;
-
-        _cts.Cancel();
-        _cts.Dispose();
-        _cts = null;
+        _subscriptions.Dispose();
+        UnbindLocalStats();
     }
 
     public void RequestReturnToMenu()
@@ -42,52 +39,25 @@ public class ClientLobbyReturnService : IInitializable, IDisposable
         ReturnToMenuAsync(CancellationToken.None).Forget();
     }
 
-    private async UniTaskVoid WatchDeathLoopAsync(CancellationToken cancellationToken)
+    public void NotifyDisconnected()
     {
-        try
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                if (ShouldReturnToMenu())
-                {
-                    await ReturnToMenuAsync(cancellationToken);
-                }
-
-                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-        }
+        RequestReturnToMenu();
     }
 
-    private bool ShouldReturnToMenu()
+    public void HandleHealthChanged(int hp, int maxHp, bool isDead)
     {
-        if (SceneManager.GetActiveScene().buildIndex == MenuSceneIndex)
-            return false;
-
-        if (!_runner.IsRunning)
-            return true;
-
-        return TryGetLocalPlayerStats(out var stats) && stats.IsDead;
     }
 
-    private bool TryGetLocalPlayerStats(out PlayerStatsNetwork stats)
+    public void HandleProgressChanged(int xp, int level)
     {
-        stats = null;
+    }
 
-        var localTarget = _localPlayerRegistry.Local.Value as Player;
-        if (localTarget == null)
-            return false;
+    public void HandleDeathChanged(bool isDead)
+    {
+        if (!isDead)
+            return;
 
-        if (localTarget.Object == null || !localTarget.Object.IsValid)
-            return false;
-
-        stats = localTarget.GetComponent<PlayerStatsNetwork>();
-        if (stats == null || stats.Object == null || !stats.Object.IsValid)
-            return false;
-
-        return true;
+        RequestReturnToMenu();
     }
 
     private async UniTask ReturnToMenuAsync(CancellationToken cancellationToken)
@@ -99,9 +69,11 @@ public class ClientLobbyReturnService : IInitializable, IDisposable
 
         try
         {
+            UnbindLocalStats();
+
             if (_runner.IsRunning)
             {
-                _runner.Shutdown(true, ShutdownReason.Ok, false);
+                _ = _runner.Shutdown(true, ShutdownReason.Ok, false);
                 await UniTask.WaitUntil(() => !_runner.IsRunning, cancellationToken: cancellationToken);
             }
 
@@ -116,5 +88,63 @@ public class ClientLobbyReturnService : IInitializable, IDisposable
         {
             _isReturning = false;
         }
+    }
+
+    private void SubscribeLocalPlayerLifecycle()
+    {
+        _subscriptions.Clear();
+
+        _localPlayerRegistry.Local
+            .DistinctUntilChanged()
+            .Subscribe(OnLocalPlayerChanged)
+            .AddTo(_subscriptions);
+    }
+
+    private void OnLocalPlayerChanged(ILocalPlayerCameraTarget localTarget)
+    {
+        if (!TryResolveLocalStats(localTarget, out var stats))
+        {
+            UnbindLocalStats();
+            return;
+        }
+
+        BindLocalStats(stats);
+    }
+
+    private static bool TryResolveLocalStats(ILocalPlayerCameraTarget localTarget, out PlayerStatsNetwork stats)
+    {
+        stats = null;
+
+        var localPlayer = localTarget as Player;
+        if (localPlayer == null)
+            return false;
+
+        if (localPlayer.Object == null || !localPlayer.Object.IsValid)
+            return false;
+
+        stats = localPlayer.GetComponent<PlayerStatsNetwork>();
+        if (stats == null || stats.Object == null || !stats.Object.IsValid)
+            return false;
+
+        return true;
+    }
+
+    private void BindLocalStats(PlayerStatsNetwork stats)
+    {
+        if (_boundStats == stats)
+            return;
+
+        UnbindLocalStats();
+        _boundStats = stats;
+        _boundStats.RegisterRenderListener(this, pushInitialState: true);
+    }
+
+    private void UnbindLocalStats()
+    {
+        if (_boundStats == null)
+            return;
+
+        _boundStats.UnregisterRenderListener(this);
+        _boundStats = null;
     }
 }

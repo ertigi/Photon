@@ -12,7 +12,8 @@ public class LootPickupNetwork : NetworkBehaviour
     [SerializeField] private Color _xpCrystalColor = new Color(0.2f, 0.6f, 1f, 1f);
     [SerializeField] private Renderer _renderer;
 
-    [Networked] public LootType Type { get; private set; }
+    [Networked, OnChangedRender(nameof(OnTypeChanged))]
+    public LootType Type { get; private set; }
     [Networked] public int Value { get; private set; }
     [Networked] private float PickupRadius { get; set; }
     [Networked] private NetworkBool IsPickedUp { get; set; }
@@ -20,8 +21,7 @@ public class LootPickupNetwork : NetworkBehaviour
     private PlayerRuntimeRegistry _playerRuntimeRegistry;
     private LootApplyService _lootApplyService;
 
-    private LootType _lastVisualType;
-    private bool _visualInitialized;
+    private Material _cachedMaterial;
 
     [Inject]
     public void Construct(PlayerRuntimeRegistry playerRuntimeRegistry, LootApplyService lootApplyService)
@@ -35,6 +35,7 @@ public class LootPickupNetwork : NetworkBehaviour
         if (HasStateAuthority && PickupRadius <= 0f)
             PickupRadius = _defaultPickupRadius;
 
+        CacheVisualReferences();
         ApplyVisual();
     }
 
@@ -75,11 +76,6 @@ public class LootPickupNetwork : NetworkBehaviour
         }
     }
 
-    public override void Render()
-    {
-        ApplyVisual();
-    }
-
     private bool TryGetAlivePlayerStats(Player player, out PlayerStatsNetwork playerStats)
     {
         playerStats = null;
@@ -96,19 +92,26 @@ public class LootPickupNetwork : NetworkBehaviour
 
     private void ApplyVisual()
     {
+        CacheVisualReferences();
+        if (_cachedMaterial == null)
+            return;
+
+        _cachedMaterial.color = Type == LootType.Potion ? _potionColor : _xpCrystalColor;
+    }
+
+    private void OnTypeChanged()
+    {
+        ApplyVisual();
+    }
+
+    private void CacheVisualReferences()
+    {
         if (_renderer == null)
             _renderer = GetComponentInChildren<Renderer>();
 
-        if (_renderer == null)
+        if (_renderer == null || _cachedMaterial != null)
             return;
 
-        if (_visualInitialized && _lastVisualType == Type)
-            return;
-
-        _visualInitialized = true;
-        _lastVisualType = Type;
-
-        Material material = _renderer.material;
-        material.color = Type == LootType.Potion ? _potionColor : _xpCrystalColor;
+        _cachedMaterial = _renderer.material;
     }
 }
