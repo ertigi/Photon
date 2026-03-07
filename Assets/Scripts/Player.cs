@@ -36,7 +36,7 @@ public class Player : NetworkBehaviour, ILocalPlayerCameraTarget
             NetworkPosition = transform.position;
             NetworkRotation = transform.rotation;
         }
-        else
+        else if (!Object.HasInputAuthority)
         {
             transform.SetPositionAndRotation(NetworkPosition, NetworkRotation);
         }
@@ -79,7 +79,9 @@ public class Player : NetworkBehaviour, ILocalPlayerCameraTarget
 
     public override void Render()
     {
-        if (HasStateAuthority)
+        // Local input authority already uses predicted simulation in FixedUpdateNetwork.
+        // Interpolating to authoritative snapshot here causes visible jitter.
+        if (HasStateAuthority || Object.HasInputAuthority)
             return;
 
         float lerp = Mathf.Clamp01(_proxyLerp * Time.deltaTime);

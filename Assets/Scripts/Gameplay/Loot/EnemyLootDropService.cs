@@ -36,7 +36,7 @@ public class EnemyLootDropService
             return false;
         }
 
-        pickup.Initialize(lootType, lootValue, _lootConfig.PickupRadius);
+        pickup.Initialize(lootType, lootValue, _lootConfig.PickupRadius, spawnPosition);
         return true;
     }
 

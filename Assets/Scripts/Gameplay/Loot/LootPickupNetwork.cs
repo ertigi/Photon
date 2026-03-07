@@ -17,6 +17,8 @@ public class LootPickupNetwork : NetworkBehaviour
     [Networked] public int Value { get; private set; }
     [Networked] private float PickupRadius { get; set; }
     [Networked] private NetworkBool IsPickedUp { get; set; }
+    [Networked, OnChangedRender(nameof(OnPositionChanged))]
+    private Vector3 NetworkPosition { get; set; }
 
     private PlayerRuntimeRegistry _playerRuntimeRegistry;
     private LootApplyService _lootApplyService;
@@ -32,18 +34,27 @@ public class LootPickupNetwork : NetworkBehaviour
 
     public override void Spawned()
     {
-        if (HasStateAuthority && PickupRadius <= 0f)
-            PickupRadius = _defaultPickupRadius;
+        if (HasStateAuthority)
+        {
+            if (PickupRadius <= 0f)
+                PickupRadius = _defaultPickupRadius;
+        }
+        else
+        {
+            transform.position = NetworkPosition;
+        }
 
         CacheVisualReferences();
         ApplyVisual();
     }
 
-    public void Initialize(LootType lootType, int value, float pickupRadius)
+    public void Initialize(LootType lootType, int value, float pickupRadius, Vector3 spawnPosition)
     {
         if (!HasStateAuthority || IsPickedUp)
             return;
 
+        transform.position = spawnPosition;
+        NetworkPosition = spawnPosition;
         Type = lootType;
         Value = Mathf.Max(1, value);
         PickupRadius = Mathf.Max(0.1f, pickupRadius);
@@ -113,5 +124,13 @@ public class LootPickupNetwork : NetworkBehaviour
             return;
 
         _cachedMaterial = _renderer.material;
+    }
+
+    private void OnPositionChanged()
+    {
+        if (HasStateAuthority)
+            return;
+
+        transform.position = NetworkPosition;
     }
 }
