@@ -179,16 +179,16 @@ public class PlayerStatsNetwork : NetworkBehaviour
         switch (bonusType)
         {
             case LevelBonusType.AttackSpeed:
-                AttackRate = Mathf.Max(0.1f, AttackRate + _progressionConfig.AttackRateBonusStep);
+                AttackRate = AttackRate + _progressionConfig.AttackRateBonusStep;
                 break;
             case LevelBonusType.Damage:
-                Damage += Mathf.Max(1, _progressionConfig.DamageBonusStep);
+                Damage += _progressionConfig.DamageBonusStep;
                 break;
             case LevelBonusType.MaxHp:
-                MaxHP += Mathf.Max(1, _progressionConfig.MaxHpBonusStep);
+                MaxHP += _progressionConfig.MaxHpBonusStep;
                 break;
             case LevelBonusType.MoveSpeed:
-                MoveSpeedMultiplier = Mathf.Max(0.1f, MoveSpeedMultiplier + _progressionConfig.MoveSpeedBonusStep);
+                MoveSpeedMultiplier = MoveSpeedMultiplier + _progressionConfig.MoveSpeedBonusStep;
                 break;
         }
 
@@ -198,13 +198,13 @@ public class PlayerStatsNetwork : NetworkBehaviour
     private void InitializeDefaults()
     {
         Level = 1;
-        MaxHP = Mathf.Max(1, _playerStatsConfig.BaseMaxHp);
+        MaxHP = _playerStatsConfig.BaseMaxHp;
         HP = MaxHP;
         XP = 0;
-        Damage = Mathf.Max(1, _playerStatsConfig.BaseDamage);
-        AttackRate = Mathf.Max(0.1f, _playerStatsConfig.BaseAttackRate);
-        AttackRadius = Mathf.Max(0.1f, _playerStatsConfig.BaseAttackRadius);
-        MoveSpeedMultiplier = Mathf.Max(0.1f, _playerStatsConfig.BaseMoveSpeedMultiplier);
+        Damage = _playerStatsConfig.BaseDamage;
+        AttackRate = _playerStatsConfig.BaseAttackRate;
+        AttackRadius = _playerStatsConfig.BaseAttackRadius;
+        MoveSpeedMultiplier = _playerStatsConfig.BaseMoveSpeedMultiplier;
         IsDead = false;
 
         EnsureStateInvariants();

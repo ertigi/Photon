@@ -16,6 +16,8 @@ public class EnemyView : NetworkBehaviour
     [Networked] private Vector3 NetworkPosition { get; set; }
     [Networked] private Quaternion NetworkRotation { get; set; }
 
+    public Vector3 Position => NetworkPosition;
+
     [Inject]
     public void Construct(EnemyRuntimeRegistry runtimeRegistry)
     {

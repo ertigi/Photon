@@ -114,7 +114,7 @@ public class EnemyController : NetworkBehaviour
 
         if (_runtimes.TryGetValue(id, out var runtime))
         {
-            Vector3 deathPosition = runtime.View != null ? runtime.View.transform.position : Vector3.zero;
+            Vector3 deathPosition = runtime.View != null ? runtime.View.Position : Vector3.zero;
             _enemyLootDropService.TrySpawnLoot(Runner, deathPosition, killerId);
 
             if (runtime.View != null && runtime.View.Object != null && runtime.View.Object.IsValid)
